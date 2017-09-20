@@ -1,0 +1,1 @@
+A project to research how to write better code on Java concurrency. 
