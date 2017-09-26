@@ -9,7 +9,7 @@ package net.jcip.examples;
  */
 
 public class NoVisibility {
-    private static boolean ready;
+    private static boolean ready = false;
     private static int number;
 
     private static class ReaderThread extends Thread {
@@ -23,9 +23,10 @@ public class NoVisibility {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         new ReaderThread().start();
         //JVM可能
+        Thread.sleep(1000);
         number = 42;
         ready = true;
     }
