@@ -1,13 +1,12 @@
 # 并发实战 16. Java内存模型
 @(Java并发)[java, 并发, jcip]
 
-
-本文将简要介绍java内存模型（JMM）底层的需求以及所提供的保障，这将有助于更深一步地理解更高层面的并发同步机制背后的原理。
+本文将简要介绍java内存模型（JMM）的底层细节以及所提供的保障，这将有助于理解更高层面的并发同步机制背后的原理。
 
 ##1. 何为内存模型
-如大家所知，Java代码在编译和运行的过程中，其实会有很多意想不到的事情发生：
+如大家所知，Java代码在编译和运行的过程中会对代码有很多意想不到且不受开发人员控制的操作：
 - 在生成指令顺序可能和源代码中顺序不相同；
-- 编译器还会把变量保存到寄存器中而非内存中；
+- 编译器可能会把变量保存到寄存器中而非内存中；
 - 处理器可以采用乱序或者并行的方式执行指令；
 - 缓存可能会改变将写入变量提交到主内存的次序；
 - 保存在处理器本地缓存中的值，对于其他处理器是不可见的；
@@ -67,7 +66,7 @@ public class PossibleReordering {
 ```
 以上代码的输出结果可能是（1，0）、（0，1）、（1，1）甚至是（0，0），这是由于两个线程的执行先后顺序可能不同，线程内部的赋值操作的顺序也有可能相互颠倒。
 
-上面这样简单的代码，如果缺少合理的同步机制都很难预测其结果，复杂的程序将更为困难，这也正是通过同步机制限制编译器和运行时对于内存操作重排序限制的意义所在。
+上面这样简单的代码，如果缺少合理的同步机制都很难预测其结果，复杂的程序将更为困难，这正是通过同步机制限制编译器和运行时对于内存操作重排序限制的意义所在。
 
 ### 1.3 Java内存模型与Happens-Before规则
 Java内存模型是通过各种操作来定义的，包括对于变量的对写操作，监视器的加锁和释放锁操作，以及线程的启动和合并，而这些操作都要满足一种偏序关系——Happen-Before规则：想要保证执行操作B的线程看到执行操作A的结果，而无论两个操作是否在同一线程，则操作A和操作B之间必须满足Happens-Before关系，否者JVM将可以对他们的执行顺序任意安排。
@@ -87,7 +86,7 @@ Java内存模型是通过各种操作来定义的，包括对于变量的对写�
 
 之前的文章中曾介绍过安全发布和数据共享的问题，而造成不正确的发布的根源就在于发布对象的操作和访问对象的操作之间缺少Happens-Before关系。
 
-请看下面这个例子，这是一个不安全的懒加载，只有在用到Resource对象时采取初始化该对象
+请看下面这个例子，这是一个不安全的懒加载，只有在第一次用到Resource对象时才会去初始化该对象。
 ```
 public class UnsafeLazyInitialization {
     private static Resource resource;
@@ -102,14 +101,14 @@ public class UnsafeLazyInitialization {
     }
 }
 ```
-getInstance() 方法是一个静态方法，可以被多个线程同时调用，就有可能出现数据竞争的问题，在Java内存模型的角度来说就是读取resource对象判断是都为空，和对resource赋值的写操作并不存在Happens-Before关系，彼此不一定是多线程环境中可见的。跟进一步，new Resource()来创建一个类对象，要先分配内存空间，对象各个域都是被赋予默认值，然后再调用构造函数对写入各个域，由于这个过程和读取Resource对象的操作并不满足Happens-Before关系，所以可能一个线程中正在创建对象但是没有执行完毕，而这时另一个线程看到的Resource对象的确不是为空，但却是个失效的状态。
+getInstance() 方法是一个静态方法，可以被多个线程同时调用，就有可能出现数据竞争的问题，在Java内存模型的角度来说就是读取resource对象判断是都为空和对resource赋值的写操作并不存在Happens-Before关系，彼此在多线程环境中不一定是可见的。此外，new Resource()来创建一个类对象，要先分配内存空间，对象各个域都是被赋予默认值，然后再调用构造函数对写入各个域。由于这个过程和读取Resource对象的操作并不满足Happens-Before关系，所以可能一个线程中正在创建对象但是没有执行完毕，而这时另一个线程看到的Resource对象的确不是为空，但却是个失效的状态。
 
 真正线程安全的懒加载应该是这样的，通过同步机制上锁，让读操作和写操作满足Happens-Before规则。
 ```
 public class SafeLazyInitialization {
     private static Resource resource;
 
-    //释放锁的操作一定在获得锁的操作之前，所以一线程获得内置所之后，一定要
+    //一线程获得内置锁之后，在释放锁之前的操作都会先于另外一个线程得到锁的操作执行
     public synchronized static Resource getInstance() {
         if (resource == null)
             resource = new Resource();
@@ -121,6 +120,8 @@ public class SafeLazyInitialization {
 }
 ```
 
+### 2.1 正确的延迟初始化
+为了避免懒加载每次调用getInstance方法的同步开销，可以使用**提前初始化**的方法，如下：
 ```
 public class EagerInitialization {
     private static Resource resource = new Resource();
@@ -133,13 +134,15 @@ public class EagerInitialization {
     }
 }
 ```
-
+提前初始化方法利用静态初始化提前加载并有同步机制保护的特性实现了安全发布。更进一步，该方法和JVM的延迟加载机制结合，形成了一种完备的延迟初始化技术-**延迟初始化占位类模式**，实例如下：
 ```
 public class ResourceFactory {
+	//静态初始化不需要额外的同步机制
     private static class ResourceHolder {
         public static Resource resource = new Resource();
     }
 
+	//延迟加载
     public static Resource getResource() {
         return ResourceHolder.resource;
     }
@@ -148,12 +151,17 @@ public class ResourceFactory {
     }
 }
 ```
+上述代码中专门使用了一个类ResourceHolder来初始化Resource对象，ResourceHolder会被JVM推迟初始化直到被真正的调用，并且因为利用了静态初始化而不需要额外的同步机制。
+> 静态初始化或静态代码块因为由JVM的机制保护，不需要额外的同步机制；
 
+### 2.2 双重检查加锁
+下面让我们从Java内存模型的角度谈谈臭名昭著的**双重检查加锁（DCL）**，示例代码如下：
 ```
 public class DoubleCheckedLocking {
     private static Resource resource;
 
     public static Resource getInstance() {
+		//没有在同步的情况下读取共享变量，破坏了Happens_Before规则
         if (resource == null) {
             synchronized (DoubleCheckedLocking.class) {
                 if (resource == null)
@@ -168,4 +176,8 @@ public class DoubleCheckedLocking {
     }
 }
 ```
+由于在早期的JVM中，同步操作很是效率低，所以延迟初始化常被用来避免不必要的同步开销，但是对于DCL，其虽然很好的解决了“独占性”，但是没有正确理解"可见性"。
 
+之前的文章中曾经介绍过：对于共享变量，读写操作都需要在**同一个锁**的保护之下，从而使得读/写操作都满足Happens-Before规则，在多线程环境中可见。但是在DCL中，第一次对于resource的空判断没有在同步机制下进行，和写操作之间没有Happens-Before关系，即使写操作是同步的，也不能保证写操作的结果是多线程可见的，此时读出的resource的值就可能是初始化到一半的失效状态。
+
+其实只要把resource设置为Volatile就能保证DCL的正常工作，而且性能的影响很小，但是现在JVM已经不断成熟和完善， 没有必要再使用DCL技术，延迟初始化占位模式更为简单和易于理解。
