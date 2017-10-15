@@ -11,6 +11,7 @@ import java.util.concurrent.*;
  */
 public class WithinThreadExecutor implements Executor {
     public void execute(Runnable r) {
+        //在当前线程中直接执行任务
         r.run();
-    };
+    }
 }
