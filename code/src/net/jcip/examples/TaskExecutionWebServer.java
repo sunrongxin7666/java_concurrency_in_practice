@@ -13,6 +13,7 @@ import java.util.concurrent.*;
  * @author Brian Goetz and Tim Peierls
  */
 public class TaskExecutionWebServer {
+    //设定线程池大小；
     private static final int NTHREADS = 100;
     private static final Executor exec
             = Executors.newFixedThreadPool(NTHREADS);

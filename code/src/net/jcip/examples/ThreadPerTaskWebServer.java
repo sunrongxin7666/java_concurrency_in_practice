@@ -16,6 +16,7 @@ public class ThreadPerTaskWebServer {
         ServerSocket socket = new ServerSocket(80);
         while (true) {
             final Socket connection = socket.accept();
+            //为每个请求创建单独的线程任务，保证并发性
             Runnable task = new Runnable() {
                 public void run() {
                     handleRequest(connection);
