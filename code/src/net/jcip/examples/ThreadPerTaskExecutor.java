@@ -11,6 +11,7 @@ import java.util.concurrent.*;
  */
 public class ThreadPerTaskExecutor implements Executor {
     public void execute(Runnable r) {
+        //为每个任务分配一个新的线程
         new Thread(r).start();
-    };
+    }
 }
