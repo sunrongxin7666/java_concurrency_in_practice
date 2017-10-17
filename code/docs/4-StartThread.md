@@ -178,5 +178,6 @@ Java中提供Timer来执行延时任务和周期任务，但是Timer类有以下
 
 因此建议使用ScheduledThreadPoolExcutor来代替Timer类。
 
+##3. 找出可以利用的并行性
 
 
