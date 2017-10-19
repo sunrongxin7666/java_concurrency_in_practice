@@ -23,6 +23,7 @@ public abstract class Renderer {
         CompletionService<ImageData> completionService =
                 new ExecutorCompletionService<ImageData>(executor);
         for (final ImageInfo imageInfo : info)
+            //每个图片的下载都是一个单独的任务；
             completionService.submit(new Callable<ImageData>() {
                 public ImageData call() {
                     return imageInfo.downloadImage();
@@ -34,6 +35,7 @@ public abstract class Renderer {
         try {
             for (int t = 0, n = info.size(); t < n; t++) {
                 Future<ImageData> f = completionService.take();
+                //等待获得结果
                 ImageData imageData = f.get();
                 renderImage(imageData);
             }

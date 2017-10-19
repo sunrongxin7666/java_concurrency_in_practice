@@ -13,6 +13,16 @@ import java.util.concurrent.*;
 public class TimeBudget {
     private static ExecutorService exec = Executors.newCachedThreadPool();
 
+    /**
+     *
+     * @param travelInfo 旅行信息
+     * @param companies 旅行公司的集合
+     * @param ranking 旅行结果的排序方法
+     * @param time 超时时间
+     * @param unit 超时时间单位
+     * @return 旅行安排
+     * @throws InterruptedException 任务被中断
+     */
     public List<TravelQuote> getRankedTravelQuotes(TravelInfo travelInfo, Set<TravelCompany> companies,
                                                    Comparator<TravelQuote> ranking, long time, TimeUnit unit)
             throws InterruptedException {

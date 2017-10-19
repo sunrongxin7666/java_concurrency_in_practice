@@ -23,6 +23,7 @@ public class RenderWithTimeBudget {
         Ad ad;
         try {
             // Only wait for the remaining time budget
+            // 只等待有限的时间
             long timeLeft = endNanos - System.nanoTime();
             ad = f.get(timeLeft, NANOSECONDS);
         } catch (ExecutionException e) {

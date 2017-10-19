@@ -35,8 +35,10 @@ public abstract class FutureRenderer {
                 renderImage(data);
         } catch (InterruptedException e) {
             // Re-assert the thread's interrupted status
+            //重新设置线程的中断状态
             Thread.currentThread().interrupt();
             // We don't need the result, so cancel the task too
+            //不需要结果，直接取消任务
             future.cancel(true);
         } catch (ExecutionException e) {
             throw launderThrowable(e.getCause());
@@ -50,6 +52,9 @@ public abstract class FutureRenderer {
         ImageData downloadImage();
     }
 
+    /**
+     * 绘制文本
+     */
     abstract void renderText(CharSequence s);
 
     abstract List<ImageInfo> scanForImageInfo(CharSequence s);
