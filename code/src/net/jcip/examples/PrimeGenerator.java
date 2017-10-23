@@ -20,10 +20,13 @@ public class PrimeGenerator implements Runnable {
 
     @GuardedBy("this") private final List<BigInteger> primes
             = new ArrayList<BigInteger>();
+    //取消标志位
     private volatile boolean cancelled;
 
     public void run() {
         BigInteger p = BigInteger.ONE;
+        //每次在生成下一个素数时坚持是否取消
+        //如果取消，则退出
         while (!cancelled) {
             p = p.nextProbablePrime();
             synchronized (this) {

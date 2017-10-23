@@ -22,6 +22,9 @@ class BrokenPrimeProducer extends Thread {
         try {
             BigInteger p = BigInteger.ONE;
             while (!cancelled)
+                // 如果队列已经满了，就会拥塞；
+                // 这回导致不能正常去坚持取消标志位；
+                // 影响线程的终止；
                 queue.put(p = p.nextProbablePrime());
         } catch (InterruptedException consumed) {
         }
