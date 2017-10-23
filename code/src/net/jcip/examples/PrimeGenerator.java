@@ -53,4 +53,14 @@ public class PrimeGenerator implements Runnable {
         }
         return generator.get();
     }
+
+    public static void main(String[] args) {
+        try {
+            System.out.println(PrimeGenerator.aSecondOfPrimes());
+            System.out.println("结束");
+            return;
+        } catch (InterruptedException e) {
+            System.out.println("中断");
+        }
+    }
 }

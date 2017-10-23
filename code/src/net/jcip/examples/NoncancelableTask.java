@@ -19,9 +19,11 @@ public class NoncancelableTask {
                 } catch (InterruptedException e) {
                     interrupted = true;
                     // fall through and retry
+                    // 重新尝试
                 }
             }
         } finally {
+            //回复中断状态
             if (interrupted)
                 Thread.currentThread().interrupt();
         }

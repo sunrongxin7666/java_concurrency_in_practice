@@ -24,6 +24,7 @@ public class TimedRun2 {
                 try {
                     r.run();
                 } catch (Throwable t) {
+                    //中断策略，保存当前抛出的异常，退出
                     this.t = t;
                 }
             }
@@ -36,13 +37,18 @@ public class TimedRun2 {
 
         RethrowableTask task = new RethrowableTask();
         final Thread taskThread = new Thread(task);
+        //开启任务子线程
         taskThread.start();
+        //定时中断任务子线程
         cancelExec.schedule(new Runnable() {
             public void run() {
                 taskThread.interrupt();
             }
         }, timeout, unit);
+
+        //限时等待等待任务子线程执行完毕
         taskThread.join(unit.toMillis(timeout));
+        //尝试抛出task在执行中抛出到异常
         task.rethrow();
     }
 }

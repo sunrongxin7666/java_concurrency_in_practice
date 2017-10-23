@@ -17,6 +17,9 @@ public class TimedRun1 {
         final Thread taskThread = Thread.currentThread();
         cancelExec.schedule(new Runnable() {
             public void run() {
+                // 中断调用线程，
+                // 违规，不能在不知道中断策略的前提下调用中断，
+                // 该方法可能被任意线程调用。
                 taskThread.interrupt();
             }
         }, timeout, unit);
