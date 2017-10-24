@@ -23,9 +23,12 @@ public class ReaderThread extends Thread {
 
     public void interrupt() {
         try {
+            // 关闭套接字
+            // 此时in.read会抛出异常
             socket.close();
         } catch (IOException ignored) {
         } finally {
+            // 正常的中断
             super.interrupt();
         }
     }
@@ -41,6 +44,8 @@ public class ReaderThread extends Thread {
                     processBuffer(buf, count);
             }
         } catch (IOException e) { /* Allow thread to exit */
+            // 如果socket关闭，in.read方法将会抛出异常
+            // 借此机会，运行线程退出
         }
     }
 

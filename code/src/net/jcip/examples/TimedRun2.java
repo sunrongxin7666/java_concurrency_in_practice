@@ -46,7 +46,7 @@ public class TimedRun2 {
             }
         }, timeout, unit);
 
-        //限时等待等待任务子线程执行完毕
+        //限时等待任务子线程执行完毕
         taskThread.join(unit.toMillis(timeout));
         //尝试抛出task在执行中抛出到异常
         task.rethrow();
