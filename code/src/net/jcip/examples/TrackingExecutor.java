@@ -12,6 +12,8 @@ import java.util.concurrent.*;
  */
 public class TrackingExecutor extends AbstractExecutorService {
     private final ExecutorService exec;
+
+    //被取消任务的队列
     private final Set<Runnable> tasksCancelledAtShutdown =
             Collections.synchronizedSet(new HashSet<Runnable>());
 
@@ -52,6 +54,7 @@ public class TrackingExecutor extends AbstractExecutorService {
                 try {
                     runnable.run();
                 } finally {
+                    // 如果当前任务被中断且执行器被关闭，则将该任务加入到容器中
                     if (isShutdown()
                             && Thread.currentThread().isInterrupted())
                         tasksCancelledAtShutdown.add(runnable);

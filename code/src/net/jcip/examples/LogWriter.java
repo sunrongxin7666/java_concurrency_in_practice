@@ -12,8 +12,11 @@ import java.util.concurrent.*;
  * @author Brian Goetz and Tim Peierls
  */
 public class LogWriter {
+    // 拥塞队列作为缓存区
     private final BlockingQueue<String> queue;
+    // 日志线程
     private final LoggerThread logger;
+    // 队列大小
     private static final int CAPACITY = 1000;
 
     public LogWriter(Writer writer) {
@@ -30,6 +33,7 @@ public class LogWriter {
     }
 
     private class LoggerThread extends Thread {
+        //线程安全的字节流
         private final PrintWriter writer;
 
         public LoggerThread(Writer writer) {
