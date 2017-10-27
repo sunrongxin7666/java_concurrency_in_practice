@@ -40,8 +40,8 @@ public class LogService {
 
     public void log(String msg) throws InterruptedException {
         synchronized (this) {
-            //同步方法判断是否关闭， 和修改信息量
-            if (isShutdown) // 如果已关闭，则不再允许消息添加到队列，抛出异常
+            //同步方法判断是否关闭和修改信息量
+            if (isShutdown) // 如果已关闭，则不再允许生产者将消息添加到队列，会抛出异常
                 throw new IllegalStateException(/*...*/);
             //如果在工作状态，信号量增加
             ++reservations;
@@ -57,13 +57,13 @@ public class LogService {
                     try {
                         //同步方法读取关闭状态和信息量
                         synchronized (LogService.this) {
-                            //如果进程被关闭且队列中已经没有消息了，则退出
+                            //如果进程被关闭且队列中已经没有消息了，则消费者退出
                             if (isShutdown && reservations == 0)
                                 break;
                         }
                         // 取出消息
                         String msg = queue.take();
-                        // 消费消息前  ，修改信号量
+                        // 消费消息前，修改信号量
                         synchronized (LogService.this) {
                             --reservations;
                         }
