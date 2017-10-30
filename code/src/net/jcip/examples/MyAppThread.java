@@ -23,6 +23,7 @@ public class MyAppThread extends Thread {
 
     public MyAppThread(Runnable runnable, String name) {
         super(runnable, name + "-" + created.incrementAndGet());
+        //定义如何处理未定义的异常处理器
         setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             public void uncaughtException(Thread t,
                                           Throwable e) {

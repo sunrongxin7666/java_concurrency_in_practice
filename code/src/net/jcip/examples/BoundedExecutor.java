@@ -14,6 +14,7 @@ import net.jcip.annotations.*;
 @ThreadSafe
 public class BoundedExecutor {
     private final Executor exec;
+    //信号量
     private final Semaphore semaphore;
 
     public BoundedExecutor(Executor exec, int bound) {
@@ -23,13 +24,17 @@ public class BoundedExecutor {
 
     public void submitTask(final Runnable command)
             throws InterruptedException {
+        //获得信号量
         semaphore.acquire();
         try {
+            //开始执行任务
             exec.execute(new Runnable() {
                 public void run() {
                     try {
                         command.run();
                     } finally {
+                        // 无论任务执行完毕，还是任务报错，
+                        // 都会释放信号量
                         semaphore.release();
                     }
                 }
