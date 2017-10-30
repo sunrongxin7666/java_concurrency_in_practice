@@ -19,7 +19,9 @@ public class TimingThreadPool extends ThreadPoolExecutor {
 
     private final ThreadLocal<Long> startTime = new ThreadLocal<Long>();
     private final Logger log = Logger.getLogger("TimingThreadPool");
+    //任务个数
     private final AtomicLong numTasks = new AtomicLong();
+    //总时间
     private final AtomicLong totalTime = new AtomicLong();
 
     protected void beforeExecute(Thread t, Runnable r) {
@@ -32,6 +34,7 @@ public class TimingThreadPool extends ThreadPoolExecutor {
         try {
             long endTime = System.nanoTime();
             long taskTime = endTime - startTime.get();
+            //原子性增长
             numTasks.incrementAndGet();
             totalTime.addAndGet(taskTime);
             log.fine(String.format("Thread %s: end %s, time=%dns",
