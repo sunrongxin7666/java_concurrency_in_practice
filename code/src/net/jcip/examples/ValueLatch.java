@@ -27,6 +27,11 @@ public class ValueLatch <T> {
         }
     }
 
+    /**
+     * 拥塞方法
+     * @return
+     * @throws InterruptedException
+     */
     public T getValue() throws InterruptedException {
         done.await();
         synchronized (this) {

@@ -12,11 +12,13 @@ import java.util.concurrent.*;
  */
 public abstract class TransformingSequential {
 
+    //顺序执行
     void processSequentially(List<Element> elements) {
         for (Element e : elements)
             process(e);
     }
 
+    //并行化执行
     void processInParallel(Executor exec, List<Element> elements) {
         for (final Element e : elements)
             exec.execute(new Runnable() {
@@ -55,8 +57,8 @@ public abstract class TransformingSequential {
         ExecutorService exec = Executors.newCachedThreadPool();
         Queue<T> resultQueue = new ConcurrentLinkedQueue<T>();
         parallelRecursive(exec, nodes, resultQueue);
-        exec.shutdown();
-        exec.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
+        exec.shutdown();//平缓关闭，等待提交的任务结束
+        exec.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS); //设置等待时间上限；
         return resultQueue;
     }
 

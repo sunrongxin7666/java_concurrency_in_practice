@@ -22,6 +22,7 @@ public class ConcurrentPuzzleSolver <P, M> {
         this.seen = new ConcurrentHashMap<P, Boolean>();
         if (exec instanceof ThreadPoolExecutor) {
             ThreadPoolExecutor tpe = (ThreadPoolExecutor) exec;
+            //设置饱和策略为拒接策略
             tpe.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
         }
     }
@@ -32,9 +33,11 @@ public class ConcurrentPuzzleSolver <P, M> {
 
     public List<M> solve() throws InterruptedException {
         try {
+            //初始化坐标
             P p = puzzle.initialPosition();
+            //执行任务
             exec.execute(newTask(p, null, null));
-            // block until solution found
+            // 拥塞直到任务结束
             PuzzleNode<P, M> solnPuzzleNode = solution.getValue();
             return (solnPuzzleNode == null) ? null : solnPuzzleNode.asMoveList();
         } finally {
@@ -52,12 +55,12 @@ public class ConcurrentPuzzleSolver <P, M> {
         }
 
         public void run() {
-            if (solution.isSet()
-                    || seen.putIfAbsent(pos, true) != null)
-                return; // already solved or seen this position
-            if (puzzle.isGoal(pos))
+            if (solution.isSet()//问题否是已经被解决
+                    || seen.putIfAbsent(pos, true) != null)//或该点已经被访问过？
+                return;
+            if (puzzle.isGoal(pos))//已达到目的地
                 solution.setValue(this);
-            else
+            else //否者，根据下一步的可能的移动发现，并发迭代执行
                 for (M m : puzzle.legalMoves(pos))
                     exec.execute(newTask(puzzle.move(pos, m), m, this));
         }
