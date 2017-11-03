@@ -17,8 +17,14 @@ public class BoundedExecutor {
     //信号量
     private final Semaphore semaphore;
 
-    public BoundedExecutor(Executor exec, int bound) {
-        this.exec = exec;
+    public BoundedExecutor(int bound) {
+        int N_Thread = Runtime.getRuntime().availableProcessors();
+        this.exec = new ThreadPoolExecutor(N_Thread + 1,
+                N_Thread + 1,
+                0L,
+                TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        ((ThreadPoolExecutor) exec).setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         this.semaphore = new Semaphore(bound);
     }
 
