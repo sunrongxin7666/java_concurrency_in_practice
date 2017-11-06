@@ -12,6 +12,9 @@ import java.util.concurrent.*;
  * @author Brian Goetz and Tim Peierls
  */
 public class ProducerConsumer {
+    /**
+     * 扫描文件目录
+     */
     static class FileCrawler implements Runnable {
         private final BlockingQueue<File> fileQueue;
         private final FileFilter fileFilter;
@@ -24,11 +27,13 @@ public class ProducerConsumer {
             this.root = root;
             this.fileFilter = new FileFilter() {
                 public boolean accept(File f) {
+                    //将文件夹加入到扫描结果中
                     return f.isDirectory() || fileFilter.accept(f);
                 }
             };
         }
 
+        //是否建立索引
         private boolean alreadyIndexed(File f) {
             return false;
         }
@@ -53,6 +58,7 @@ public class ProducerConsumer {
         }
     }
 
+    //建立索引
     static class Indexer implements Runnable {
         private final BlockingQueue<File> queue;
 
@@ -71,10 +77,12 @@ public class ProducerConsumer {
 
         public void indexFile(File file) {
             // Index the file...
-        };
+        }
     }
 
+    //队列大小
     private static final int BOUND = 10;
+    //线程数
     private static final int N_CONSUMERS = Runtime.getRuntime().availableProcessors();
 
     public static void startIndexing(File[] roots) {
