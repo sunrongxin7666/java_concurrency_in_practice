@@ -12,13 +12,13 @@ import java.util.concurrent.*;
  */
 public abstract class TransformingSequential {
 
-    //顺序执行
+    // 顺序执行
     void processSequentially(List<Element> elements) {
         for (Element e : elements)
             process(e);
     }
 
-    //并行化执行
+    // 并行化执行
     void processInParallel(Executor exec, List<Element> elements) {
         for (final Element e : elements)
             exec.execute(new Runnable() {
