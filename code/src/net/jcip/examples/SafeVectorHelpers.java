@@ -10,6 +10,7 @@ import java.util.*;
  * @author Brian Goetz and Tim Peierls
  */
 public class SafeVectorHelpers {
+    //上锁
     public static Object getLast(Vector list) {
         synchronized (list) {
             int lastIndex = list.size() - 1;
