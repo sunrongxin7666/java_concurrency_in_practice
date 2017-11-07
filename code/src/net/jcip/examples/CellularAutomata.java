@@ -11,18 +11,23 @@ import java.util.concurrent.*;
  */
 public class CellularAutomata {
     private final Board mainBoard;
+    //栅栏
     private final CyclicBarrier barrier;
+    //子任务
     private final Worker[] workers;
 
     public CellularAutomata(Board board) {
         this.mainBoard = board;
+        //环境中CPU的个数
         int count = Runtime.getRuntime().availableProcessors();
         this.barrier = new CyclicBarrier(count,
                 new Runnable() {
                     public void run() {
+                        //当所有子任务完成，更新数值
                         mainBoard.commitNewValues();
                     }});
         this.workers = new Worker[count];
+        //划分子任务；
         for (int i = 0; i < count; i++)
             workers[i] = new Worker(mainBoard.getSubBoard(count, i));
     }
@@ -35,8 +40,10 @@ public class CellularAutomata {
             while (!board.hasConverged()) {
                 for (int x = 0; x < board.getMaxX(); x++)
                     for (int y = 0; y < board.getMaxY(); y++)
+                        //设置当前子任务的结果
                         board.setNewValue(x, y, computeValue(x, y));
                 try {
+                    //完成计算，等待其他任务完成
                     barrier.await();
                 } catch (InterruptedException ex) {
                     return;

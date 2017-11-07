@@ -14,11 +14,12 @@ public class LaunderThrowable {
      * RuntimeException return it, otherwise throw IllegalStateException
      */
     public static RuntimeException launderThrowable(Throwable t) {
+        // 运行时异常，直接抛出
         if (t instanceof RuntimeException)
             return (RuntimeException) t;
-        else if (t instanceof Error)
+        else if (t instanceof Error) //Error 直接抛出
             throw (Error) t;
-        else
+        else //其他异常，抛出逻辑异常
             throw new IllegalStateException("Not unchecked", t);
     }
 }
