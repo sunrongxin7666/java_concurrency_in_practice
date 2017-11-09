@@ -11,7 +11,7 @@ import java.util.concurrent.*;
  */
 public class Memoizer <A, V> implements Computable<A, V> {
     private final ConcurrentMap<A, Future<V>> cache
-            = new ConcurrentHashMap<A, Future<V>>();
+            = new ConcurrentHashMap<>();
     private final Computable<A, V> c;
 
     public Memoizer(Computable<A, V> c) {
@@ -27,7 +27,8 @@ public class Memoizer <A, V> implements Computable<A, V> {
                         return c.compute(arg);
                     }
                 };
-                FutureTask<V> ft = new FutureTask<V>(eval);
+                FutureTask<V> ft = new FutureTask<>(eval);
+                // 如果不存在则提交
                 f = cache.putIfAbsent(arg, ft);
                 if (f == null) {
                     f = ft;
