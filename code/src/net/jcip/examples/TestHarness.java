@@ -21,12 +21,12 @@ public class TestHarness {
             Thread t = new Thread() {
                 public void run() {
                     try {
-                        //等待主线程初始化完毕
+                        // 等待主线程初始化完毕
                         startGate.await();
                         try {
                             task.run();
                         } finally {
-                            //结束锁释放一个
+                            // 结束锁释放一个
                             endGate.countDown();
                         }
                     } catch (InterruptedException ignored) {
