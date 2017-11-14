@@ -19,6 +19,7 @@ public class TimedLocking {
             throws InterruptedException {
         long nanosToLock = unit.toNanos(timeout)
                 - estimatedNanosToSend(message);
+        // 在规定时间内等待锁 否者就会返回false
         if (!lock.tryLock(nanosToLock, NANOSECONDS))
             return false;
         try {

@@ -12,6 +12,7 @@ public class InterruptibleLocking {
 
     public boolean sendOnSharedLine(String message)
             throws InterruptedException {
+        // 可以响应中断的锁
         lock.lockInterruptibly();
         try {
             return cancellableSendOnSharedLine(message);
@@ -20,6 +21,7 @@ public class InterruptibleLocking {
         }
     }
 
+    // 可能会抛出中断异常
     private boolean cancellableSendOnSharedLine(String message) throws InterruptedException {
         /* send something */
         return true;

@@ -26,8 +26,10 @@ public class DeadlockAvoidance {
         long stopTime = System.nanoTime() + unit.toNanos(timeout);
 
         while (true) {
+            // 尝试获得 fromAcct的锁
             if (fromAcct.lock.tryLock()) {
                 try {
+                    // 尝试获得  toAcct的锁
                     if (toAcct.lock.tryLock()) {
                         try {
                             if (fromAcct.getBalance().compareTo(amount) < 0)
@@ -45,8 +47,11 @@ public class DeadlockAvoidance {
                     fromAcct.lock.unlock();
                 }
             }
+            // 判断是否超时 如果超时则立刻失败
             if (System.nanoTime() < stopTime)
                 return false;
+
+            //如果没有超时，随机睡眠一段时间
             NANOSECONDS.sleep(fixedDelay + rnd.nextLong() % randMod);
         }
     }
@@ -72,6 +77,7 @@ public class DeadlockAvoidance {
     }
 
     class Account {
+        //显示锁
         public Lock lock;
 
         void debit(DollarAmount d) {
