@@ -12,6 +12,7 @@ import java.util.concurrent.locks.*;
  */
 public class ReadWriteMap <K,V> {
     private final Map<K, V> map;
+    // 读写锁
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     private final Lock r = lock.readLock();
     private final Lock w = lock.writeLock();
