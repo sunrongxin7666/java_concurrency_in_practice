@@ -12,7 +12,8 @@ import net.jcip.annotations.*;
  * @author Brian Goetz and Tim Peierls
  */
 @ThreadSafe
-        public class ConcurrentStack <E> {
+
+public class ConcurrentStack <E> {
     AtomicReference<Node<E>> top = new AtomicReference<Node<E>>();
 
     public void push(E item) {

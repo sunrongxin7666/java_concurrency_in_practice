@@ -18,6 +18,7 @@ public class SimulatedCAS {
         return value;
     }
 
+    // CAS = compare and swap
     public synchronized int compareAndSwap(int expectedValue,
                                            int newValue) {
         int oldValue = value;

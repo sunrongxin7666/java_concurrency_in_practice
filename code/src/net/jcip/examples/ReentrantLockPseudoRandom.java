@@ -13,6 +13,7 @@ import net.jcip.annotations.*;
  */
 @ThreadSafe
 public class ReentrantLockPseudoRandom extends PseudoRandom {
+    // 非公平锁
     private final Lock lock = new ReentrantLock(false);
     private int seed;
 
