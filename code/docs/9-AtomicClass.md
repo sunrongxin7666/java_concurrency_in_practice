@@ -213,7 +213,7 @@ public class LinkedQueue <E> {
 }
 ```
 
-```java
+```
 AtomicReferenceFieldUpdater
     /**
     * @param tclass the class of the objects holding the field
